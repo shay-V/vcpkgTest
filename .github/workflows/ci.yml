@@ -11,10 +11,10 @@ jobs:
         include:
           - os: windows-latest
             vcpkgCommitId: '4826ede84084395b0f87476e48ff6d4070eba0e4'
-            preset: 'windows'
+            preset: 'windows-msvc-release-developer-mode'
           - os: ubuntu-22.04
             vcpkgCommitId: '4826ede84084395b0f87476e48ff6d4070eba0e4'
-            preset: 'unix'
+            preset: 'gcc-release'
 
     steps:
       - name: Check out repository code
