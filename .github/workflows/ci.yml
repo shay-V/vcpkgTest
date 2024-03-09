@@ -1,147 +1,39 @@
-name: ci
-on:
-  pull_request:
-  release:
-    types: [published]
-  push:
-    branches:
-      - main
-      - develop
-      - master
+name: CI
+on: [push, workflow_dispatch]
 
 jobs:
-  Test:
-    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
+  job:
+    name: ${{ matrix.os }}-${{ github.workflow }}
     runs-on: ${{ matrix.os }}
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
     strategy:
       fail-fast: false
-
-      # Recommendations:
-      #   * support at least 2 operating systems
-      #   * support at least 2 compilers
-      #   * make sure all supported configurations for your project are built
-      #
-      # Disable/enable builds in this list to meet the above recommendations
-      # and your own projects needs
       matrix:
-        os:
-          - ubuntu-22.04
-          - macos-11
-          - windows-2022
-        compiler:
-          # you can specify the version after `-` like "llvm-13.0.0".
-          - llvm
-          - gcc
-        CMAKE_GENERATOR:
-          - "Ninja Multi-Config"
-        CPACK_GENERATOR:
-          - ZIP
-
         include:
-          # Inject GCOV variable for gcc
-          - compiler: gcc
-            GCOV: gcov
-          # Inject GCOV variable for llvm
-          - compiler: llvm
-            GCOV: "llvm-cov gcov"
-
-          # Only to test non-multiconfig builds
+          - os: windows-latest
+            vcpkgCommitId: '4826ede84084395b0f87476e48ff6d4070eba0e4'
+            preset: 'windows'
           - os: ubuntu-22.04
-            compiler: gcc-11
-            CMAKE_GENERATOR: "Unix Makefiles"
-            GCOV: gcov-11
-
-          - os: windows-2022
-            compiler: msvc
-            CMAKE_GENERATOR: "Visual Studio 17 2022"
-
-        # To exclude a specific job from the matrix (e.g gcc on Windows), you can use this syntax.
-        # exclude:
-        #   - os: windows-2022
-        #     compiler: gcc
+            vcpkgCommitId: '4826ede84084395b0f87476e48ff6d4070eba0e4'
+            preset: 'unix'
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out repository code
+        uses: actions/checkout@v3
 
-      - name: Cache
-        uses: actions/cache@v4
+      - uses: friendlyanon/setup-vcpkg@v1
         with:
-          path: |
-            ~/vcpkg
-            ./build/vcpkg_installed
-            ${{ env.CONAN_USER_HOME }}
-            ~/.cache/pip
-            ${{ env.HOME }}/.cache/vcpkg/archives
-            ${{ env.XDG_CACHE_HOME }}/vcpkg/archives
-            ${{ env.LOCALAPPDATA }}\vcpkg\archives
-            ${{ env.APPDATA }}\vcpkg\archives
-          key: ${{ runner.os }}-${{ matrix.compiler }}-${{ hashFiles('./vcpkg.json')}}-${{ matrix.CMAKE_GENERATOR }}-${{ hashFiles('**/CMakeLists.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ matrix.compiler }}-${{ hashFiles('./vcpkg.json') }}-
+          committish: ${{ matrix.vcpkgCommitId }}
+          cache: false
 
-      - name: Setup Cpp
-        uses: aminya/setup-cpp@v1
-        with:
-          compiler: ${{ matrix.compiler }}
-          vcvarsall: ${{ contains(matrix.os, 'windows' )}}
+      - name: GCC version on Linux
+        shell: bash
+        run: g++ --version
+        if: runner.os == 'Linux'
 
-          cmake: true
-          ninja: true
-          vcpkg: true
-          ccache: true
-          clangtidy: true
-          task: true
+      - name: Run CMake with manifest mode vcpkg
+        shell: bash
+        run: cmake --preset=${{ matrix.preset }} -B build -DCMAKE_VERBOSE_MAKEFILE=1
 
-          cppcheck: true
-
-          gcovr: "5.2"
-          opencppcoverage: true
-
-      - name: Initialize CodeQL
-        if: ${{ contains(matrix.os, 'ubuntu') && contains(matrix.compiler, 'llvm') }}
-        uses: github/codeql-action/init@v3
-        with:
-          languages: "cpp"
-
-      - name: Test/Coverage
-        run: |
-          task coverage
-        env:
-          CMAKE_GENERATOR: ${{matrix.CMAKE_GENERATOR}}
-          GCOV: ${{matrix.GCOV}}
-
-      - name: Test release
-        run: |
-          task test_release
-        env:
-          CMAKE_GENERATOR: ${{matrix.CMAKE_GENERATOR}}
-          GCOV: ${{matrix.GCOV}}
-
-      - name: Install
-        run: |
-          task install
-        env:
-          CMAKE_GENERATOR: ${{matrix.CMAKE_GENERATOR}}
-          CPACK_GENERATOR: ${{matrix.CPACK_GENERATOR}}
-
-      - name: Perform CodeQL Analysis
-        if: ${{ contains(matrix.os, 'ubuntu') && contains(matrix.compiler, 'llvm') }}
-        uses: github/codeql-action/analyze@v3
-
-      - name: Publish Tagged Release
-        uses: softprops/action-gh-release@v2
-        if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.CPACK_GENERATOR != '' }}
-        with:
-          files: |
-            build/*-*Release*-*.*
-
-      - name: Publish to codecov
-        uses: codecov/codecov-action@v4
-        with:
-          flags: ${{ runner.os }}
-          name: ${{ runner.os }}-coverage
-          files: ./build/coverage.xml
+      - name: Compile binaries
+        shell: bash
+        run: cmake --build build
