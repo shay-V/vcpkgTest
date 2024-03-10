@@ -27,7 +27,7 @@ jobs:
           - os: windows-latest
             c_compiler: msvc
             cpp_compiler: msvc
-            CMAKE_GENERATOR: "Visual Studio 2019"
+            CMAKE_GENERATOR: "Visual Studio 17 2022"
             # mingw
           - os: windows-latest
             c_compiler: gcc
@@ -81,6 +81,16 @@ jobs:
 
     - name: Build
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
-     
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }} 
-          
+      
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: Executable
+       path: ${{ steps.strings.outputs.build-output-dir }}/your_executable_file.exe
+
+    - name: Download Artifacts
+      uses: actions/download-artifact@v2
+      with:
+        name: Executable
+        path: ${{ github.workspace }}/downloaded_artifacts
