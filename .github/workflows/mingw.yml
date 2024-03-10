@@ -1,0 +1,28 @@
+name: mingw
+
+on: 
+  push:
+
+jobs:
+  build_test:
+    runs-on: windows-latest
+    name: 'Mingw build'
+    strategy:
+      fail-fast: false
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: MinGW
+        uses: ./
+        #needs publishing to marketplace?
+        #uses: Denzy7/action-mingw@v3
+
+      - name: Build
+        shell: pwsh
+        if: runner.os == 'Windows'
+        run: |
+          cmake -S . -B build -G 'MinGW Makefiles'
+          cmake --build build
+      
