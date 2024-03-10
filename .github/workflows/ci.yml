@@ -27,19 +27,24 @@ jobs:
           - os: windows-latest
             c_compiler: msvc
             cpp_compiler: msvc
+            CMAKE_GENERATOR: "Visual Studio 16 2019"
           - os: windows-latest
             c_compiler: gcc
             cpp_compiler: g++
+            CMAKE_GENERATOR: "MinGW Makefiles"
           - os: windows-latest
             c_compiler: clang
             cpp_compiler: clang++
+            CMAKE_GENERATOR: "Unix Makefiles"
 
           - os: ubuntu-latest
             c_compiler: gcc
             cpp_compiler: g++
+            CMAKE_GENERATOR: "Unix Makefiles"
           - os: ubuntu-latest
             c_compiler: clang
             cpp_compiler: clang++
+            CMAKE_GENERATOR: "Unix Makefiles"
             # exclude 部分排除了不兼容的组合：
             # 不允许在 windows-latest 上使用 gcc 或 clang 编译器
             # 不允许在 ubuntu-latest 上使用 cl 编译器
@@ -71,6 +76,7 @@ jobs:
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
         -S ${{ github.workspace }}
+        -G '${{ matrix.CMAKE_GENERATOR }}'
 
     - name: Build
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
