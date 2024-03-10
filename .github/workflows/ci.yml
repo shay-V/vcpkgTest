@@ -107,7 +107,7 @@ jobs:
           ${{ steps.strings.outputs.build-output-dir }}/Release/HelloWorld.exe
 
     - name: Zip Files
-      run: >
+      run: |
         zip -r -f windows-x64.zip ${{ steps.strings.outputs.build-output-dir }}/Release/
         zip -r -f linux.zip ${{ steps.strings.outputs.build-output-dir }}/HelloWorld
 
