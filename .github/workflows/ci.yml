@@ -107,8 +107,9 @@ jobs:
           ${{ steps.strings.outputs.build-output-dir }}/Release/HelloWorld.exe
 
     - name: Zip Files
-      run: zip -r -f windows-x64.zip ${{ steps.strings.outputs.build-output-dir }}/Release/
-      run: zip -r -f linux.zip ${{ steps.strings.outputs.build-output-dir }}/HelloWorld
+      run: >
+        zip -r -f windows-x64.zip ${{ steps.strings.outputs.build-output-dir }}/Release/
+        zip -r -f linux.zip ${{ steps.strings.outputs.build-output-dir }}/HelloWorld
 
     # 默认下载所有工件
     - name: Download Artifacts
