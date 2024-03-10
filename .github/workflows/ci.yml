@@ -87,6 +87,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: Linux executable
+        overwrite: true
         path: |
           ${{ steps.strings.outputs.build-output-dir }}/HelloWorld
 
@@ -94,6 +95,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: Windows executable
+        overwrite: true
         path: |
           # msvc
           ${{ steps.strings.outputs.build-output-dir }}/Release/HelloWorld.exe
@@ -102,14 +104,8 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: Linux executable
-        overwrite: true
         path: |
           ${{ github.workspace }}/HelloWorld
 
     - name: Download Artifacts
       uses: actions/download-artifact@v4
-      with:
-        name: Windows executable
-        overwrite: true
-        path: |
-          ${{ github.workspace }}/HelloWorld.exe
