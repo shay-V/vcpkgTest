@@ -106,10 +106,9 @@ jobs:
           # msvc
           ${{ steps.strings.outputs.build-output-dir }}/Release/HelloWorld.exe
 
-    - name: Zip Files
-      run: |
-        zip -r -f windows-x64.zip ${{ steps.strings.outputs.build-output-dir }}/Release/
-        zip -r -f linux.zip ${{ steps.strings.outputs.build-output-dir }}/HelloWorld
+    - uses: montudor/action-zip@v1
+      with:
+        args: zip -qq -r  windows-x64.zip ${{ steps.strings.outputs.build-output-dir }}/Release/
 
     # 默认下载所有工件
     - name: Download Artifacts
@@ -120,5 +119,4 @@ jobs:
       if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.CPACK_GENERATOR != '' }}
       with:
         files: |
-          ${{ steps.strings.outputs.build-output-dir }}/Release/HelloWorld.exe
-          ${{ steps.strings.outputs.build-output-dir }}/HelloWorld
+          windows-x64.zip
