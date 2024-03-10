@@ -22,24 +22,28 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
         build_type: [Release]
-        c_compiler: [gcc, clang, cl, mingw]
+        c_compiler: [gcc, clang, msvc, mingw]
         include:
           - os: windows-latest
-            c_compiler: cl
-            cpp_compiler: cl
+            c_compiler: msvc
+            cpp_compiler: msvc
           - os: windows-latest
             c_compiler: mingw
             cpp_compiler: g++
+            CMAKE_GENERATOR: "MinGW Makefiles"
           - os: windows-latest
             c_compiler: clang
             cpp_compiler: clang++
+            CMAKE_GENERATOR: "Unix Makefiles"
 
           - os: ubuntu-latest
             c_compiler: gcc
             cpp_compiler: g++
+            CMAKE_GENERATOR: "Unix Makefiles"
           - os: ubuntu-latest
             c_compiler: clang
             cpp_compiler: clang++
+            CMAKE_GENERATOR: "Unix Makefiles"
             # exclude 部分排除了不兼容的组合：
             # 不允许在 windows-latest 上使用 gcc 或 clang 编译器
             # 不允许在 ubuntu-latest 上使用 cl 编译器
@@ -49,15 +53,12 @@ jobs:
           # - os: windows-latest
           #   c_compiler: clang
           - os: ubuntu-latest
-            c_compiler: cl
+            c_compiler: msvc
+          - os: ubuntu-latest
+            c_compiler: mingw
 
     steps:
     - uses: actions/checkout@v3
-
-    - name: Set up MinGW
-      uses: egor-tensin/setup-mingw@v2
-      with:
-        platform: x64
 
     - name: Set reusable strings
       # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
@@ -75,10 +76,12 @@ jobs:
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
         -S ${{ github.workspace }}
+        -G ${{matrix.CMAKE_GENERATOR}}
 
     - name: Build
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
-      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
+     
+      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }} 
 
     - name: Test
       working-directory: ${{ steps.strings.outputs.build-output-dir }}
