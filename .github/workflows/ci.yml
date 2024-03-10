@@ -106,12 +106,6 @@ jobs:
           # msvc
           ${{ steps.strings.outputs.build-output-dir }}/Release/HelloWorld.exe
 
-    - name: Download Artifacts
-      uses: actions/download-artifact@v4
-      with:
-        name: Linux executable
-        path: |
-          ${{ github.workspace }}/HelloWorld
     - name: Zip Files
       run: zip -r -f windows-x64.zip ${{ steps.strings.outputs.build-output-dir }}/Release/
       run: zip -r -f linux.zip ${{ steps.strings.outputs.build-output-dir }}/HelloWorld
