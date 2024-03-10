@@ -30,7 +30,7 @@ jobs:
           - os: windows-latest
             c_compiler: mingw
             cpp_compiler: g++
-            CMAKE_GENERATOR: "\"MinGW Makefiles\""
+            CMAKE_GENERATOR: "/"MinGW Makefiles/""
           - os: windows-latest
             c_compiler: clang
             cpp_compiler: clang++
