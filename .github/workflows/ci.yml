@@ -87,6 +87,8 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: Linux executable
+        # 消除警告
+        if-no-files-found: ignore
         overwrite: true
         path: |
           ${{ steps.strings.outputs.build-output-dir }}/HelloWorld
@@ -95,6 +97,8 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: Windows executable
+        # 消除警告
+        if-no-files-found: ignore
         overwrite: true
         path: |
           # msvc
@@ -107,5 +111,6 @@ jobs:
         path: |
           ${{ github.workspace }}/HelloWorld
 
+    # 默认下载所有工件
     - name: Download Artifacts
       uses: actions/download-artifact@v4
