@@ -87,10 +87,10 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: Executable
-        path: ${{ steps.strings.outputs.build-output-dir }}/your_executable_file.exe
+        path: ${{ steps.strings.outputs.build-output-dir }}/HelloWorld.*
 
     - name: Download Artifacts
       uses: actions/download-artifact@v2
       with:
         name: Executable
-        path: ${{ github.workspace }}/downloaded_artifacts
+        path: ${{ github.workspace }}/HelloWorld.*
