@@ -11,9 +11,6 @@ add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# 对于Windows系统可能需要添加线程支持
-if(WIN32)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MT")  # 静态链接多线程运行库（如果是Visual Studio编译器）
-endif()
+
 
 # 如果有其他编译选项或者依赖库，也可以在此处添加
