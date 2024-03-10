@@ -1,18 +1,39 @@
-name: GitHub Actions Demo
-run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
-on: [push]
+name: CI
+on: [push, workflow_dispatch]
+
 jobs:
-  Explore-GitHub-Actions:
-    runs-on: ubuntu-latest
+  job:
+    name: ${{ matrix.os }}-${{ github.workflow }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            vcpkgCommitId: '4826ede84084395b0f87476e48ff6d4070eba0e4'
+            preset: 'windows-msvc-release-developer-mode'
+          - os: ubuntu-22.04
+            vcpkgCommitId: '4826ede84084395b0f87476e48ff6d4070eba0e4'
+            preset: 'gcc-release'
+
     steps:
-      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
-      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
-      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
       - name: Check out repository code
-        uses: actions/checkout@v4
-      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
-      - run: echo "🖥️ The workflow is now ready to test your code on the runner."
-      - name: List files in the repository
-        run: |
-          ls ${{ github.workspace }}
-      - run: echo "🍏 This job's status is ${{ job.status }}."
+        uses: actions/checkout@v3
+
+      - uses: friendlyanon/setup-vcpkg@v1
+        with:
+          committish: ${{ matrix.vcpkgCommitId }}
+          cache: false
+
+      - name: GCC version on Linux
+        shell: bash
+        run: g++ --version
+        if: runner.os == 'Linux'
+
+      # - name: Run CMake with manifest mode vcpkg
+      #   shell: bash
+      #   run: cmake --preset=${{ matrix.preset }} -B build -DCMAKE_VERBOSE_MAKEFILE=1
+
+      - name: Compile binaries
+        shell: bash
+        run: cmake --build build
