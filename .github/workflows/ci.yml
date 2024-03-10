@@ -106,9 +106,13 @@ jobs:
           # msvc
           ${{ steps.strings.outputs.build-output-dir }}/Release/HelloWorld.exe
 
-    - uses: montudor/action-zip@v1
+    - name: Archive Release
+      uses: thedoctor0/zip-release@0.7.5
+      if: runner.os == 'Windows'
       with:
-        args: zip -qq -r  windows-x64.zip ${{ steps.strings.outputs.build-output-dir }}/Release/
+        type: 'zip'
+        filename: 'windows-x64.zip'
+        path: ${{ steps.strings.outputs.build-output-dir }}/Release/
 
     # 默认下载所有工件
     - name: Download Artifacts
