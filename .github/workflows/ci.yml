@@ -30,20 +30,20 @@ jobs:
           - os: windows-latest
             c_compiler: mingw
             cpp_compiler: g++
-            CMAKE_GENERATOR: "MinGW Makefiles"
+            CMAKE_GENERATOR: "\"MinGW Makefiles\""
           - os: windows-latest
             c_compiler: clang
             cpp_compiler: clang++
-            CMAKE_GENERATOR: "Unix Makefiles"
+            CMAKE_GENERATOR: "\"Unix Makefiles\""
 
           - os: ubuntu-latest
             c_compiler: gcc
             cpp_compiler: g++
-            CMAKE_GENERATOR: "Unix Makefiles"
+            CMAKE_GENERATOR: "\"Unix Makefiles\""
           - os: ubuntu-latest
             c_compiler: clang
             cpp_compiler: clang++
-            CMAKE_GENERATOR: "Unix Makefiles"
+            CMAKE_GENERATOR: "\"Unix Makefiles\""
             # exclude 部分排除了不兼容的组合：
             # 不允许在 windows-latest 上使用 gcc 或 clang 编译器
             # 不允许在 ubuntu-latest 上使用 cl 编译器
