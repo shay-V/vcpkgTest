@@ -107,7 +107,7 @@ jobs:
           ${{ steps.strings.outputs.build-output-dir }}/Release/HelloWorld.exe
 
     - name: Archive Release
-      uses: thedoctor0/zip-release@0.7.5
+      uses: thedoctor0/zip-release@0.7.6
       if: runner.os == 'Windows'
       with:
         type: 'zip'
